@@ -1,4 +1,4 @@
-#Middleware
+# Middleware
 
 In this research, we developed a custom middleware that replaces the traditional Kubernetes ingress controller and acts as an API gateway. This middleware exposes a single
 endpoint where the name of the requested service is provided as a query_parameter. Upon receiving a request, the middleware performs the following operations:
@@ -8,7 +8,7 @@ endpoint where the name of the requested service is provided as a query_paramete
 3. **Action Decoding:** The middleware decodes the action using a logic similar to that defined in the step method of the CustomK8sEnv class.
 4. **Request Forwarding:** Once decoded, the middleware forwards the API request to the node IP associated with the action, appending the requested service to the endpoint (i.e., <nodeIp>:requestedService).
 
-#Middleware Kubernetes Use Cases
+# Middleware Kubernetes Use Cases
 
 1. The middleware replaces the Ingress Controller (e.g., Nginx Ingress) to forward traﬀic to the appropriate Kubernetes service.
 2. It replaces the Kubernetes Service Discovery by listing the services, their pod placements in the worker nodes, and their status (e.g., Running, Pending, etc.) to feed them to the DDQN model, helping to inform load-balancing decisions.
@@ -16,7 +16,7 @@ endpoint where the name of the requested service is provided as a query_paramete
 4. Similarly, it fetches Node Metrics (CPU% and RAM%) to provide a broader view of resource usage across the cluster, which is crucial for the DDQN model.
 
 
-#DDQN Load Balancer:
+# DDQN Load Balancer:
 
 The core component of this architecture is a DDQN model. This model is trained to select the most suitable worker node for handling traﬀic, considering the current systemload and resource usage.
 
@@ -41,7 +41,7 @@ The core component of this architecture is a DDQN model. This model is trained t
   
 9. Updates the target network using a soft update.
 
-#Metrics Collection
+# Metrics Collection
 
 The environment is designed for reinforcement learning with Kubernetes. It interacts with the k8s-metric-server of the cluster Using kubernetes.client Python library. At each service request, the environment collects real-time metrics from the Kubernetes cluster using various API calls. These include:
 
@@ -52,7 +52,7 @@ The environment is designed for reinforcement learning with Kubernetes. It inter
 5. **Microservice Instance Usage:** normalized pod usage, for each service via the get_pod_cpu_usage_for_service(app_label) function and get_pod_ram_usage_for_service(app_label) function with help of get_node_capacity() function for normalization.
 
 
-#Replay Memory
+# Replay Memory
 
 We crafted ReplayBuffer Class - a cyclic buffer of bounded size that holds the transitions observed recently.
 
@@ -62,11 +62,11 @@ We crafted ReplayBuffer Class - a cyclic buffer of bounded size that holds the t
 4. sample() - a function for selecting a random batch of experiences for training.
 
 
-#Q-network
+# Q-network
 
 We crafted QNetwork class that extends torch.nn.Module(neural network). it overrides forward function that takes in the difference between the current and previous cluster state. Since the network layers are of type Linear, we perform state.flatten for the input layer. hidden layers are 64 of length. It has action_space_size as outputs.
 
-#Hyper-params
+# Hyper-params
 
 • BUFFER_SIZE=int(1e5) #replay buffer size
 • BATCH_SIZE=32 #sample minibatch size
@@ -75,6 +75,6 @@ We crafted QNetwork class that extends torch.nn.Module(neural network). it overr
 • LR=5e-4 #learning rate
 • UPDATE_EVERY=10 #how often to update the network
 
-#Hyperparameter Optimization
+# Hyperparameter Optimization
 
 For our DQN model, Optuna was utilized to tune the hyperparameters.
