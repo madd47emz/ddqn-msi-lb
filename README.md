@@ -4,16 +4,22 @@ In this research, we developed a custom middleware that replaces the traditional
 endpoint where the name of the requested service is provided as a query_parameter. Upon receiving a request, the middleware performs the following operations:
 
 1. **Model Loading for Evaluation:** The middleware dynamically loads the deep learning model for evaluation using torch.load from server-stored checkpoint files checkpoint.pth.
-2. **State Management and Decision Making:** The current state of the system isobtained by invoking the get_state method from CustomK8sEnv.
-3. **Action Decoding:** The middleware decodes the action using a logic similar to that defined in the step method of the CustomK8sEnv class.
-4. **Request Forwarding:** Once decoded, the middleware forwards the API request to the node IP associated with the action, appending the requested service to the endpoint (i.e., <nodeIp>:requestedService).
+   
+3. **State Management and Decision Making:** The current state of the system isobtained by invoking the get_state method from CustomK8sEnv.
+   
+5. **Action Decoding:** The middleware decodes the action using a logic similar to that defined in the step method of the CustomK8sEnv class.
+   
+7. **Request Forwarding:** Once decoded, the middleware forwards the API request to the node IP associated with the action, appending the requested service to the endpoint (i.e., <nodeIp>:requestedService).
 
 # Middleware Kubernetes Use Cases
 
 1. The middleware replaces the Ingress Controller (e.g., Nginx Ingress) to forward traﬀic to the appropriate Kubernetes service.
-2. It replaces the Kubernetes Service Discovery by listing the services, their pod placements in the worker nodes, and their status (e.g., Running, Pending, etc.) to feed them to the DDQN model, helping to inform load-balancing decisions.
-3. It fetches Microservice Instance Placement to feed them to the DDQN model, helping to inform load-balancing decisions.
-4. Similarly, it fetches Node Metrics (CPU% and RAM%) to provide a broader view of resource usage across the cluster, which is crucial for the DDQN model.
+   
+3. It replaces the Kubernetes Service Discovery by listing the services, their pod placements in the worker nodes, and their status (e.g., Running, Pending, etc.) to feed them to the DDQN model, helping to inform load-balancing decisions.
+   
+5. It fetches Microservice Instance Placement to feed them to the DDQN model, helping to inform load-balancing decisions.
+   
+7. Similarly, it fetches Node Metrics (CPU% and RAM%) to provide a broader view of resource usage across the cluster, which is crucial for the DDQN model.
 
 
 # DDQN Load Balancer:
@@ -46,10 +52,14 @@ The core component of this architecture is a DDQN model. This model is trained t
 The environment is designed for reinforcement learning with Kubernetes. It interacts with the k8s-metric-server of the cluster Using kubernetes.client Python library. At each service request, the environment collects real-time metrics from the Kubernetes cluster using various API calls. These include:
 
 1. **Nodes Capacity:** Name, IP address, CPU capacity(millicores), RAM capacity(megabytes) for each node, retrieved through the get_node_capacity() function.
-2. **Nodes Usage:** Name, IP address, normalized(percentage) CPU and RAM usage for each node, retrieved through the get_node_metrics() function with the help of get_node_capacity() function for normalization.
-3. **Service Discovery:** Name, NodePort, App Label, for each service using the get_services_with_node_ports() function.
-4. **Pods Discovery:** Pod Name Node Name, Pod Status, for each pod of the service via the get_pod_placements_for_service(app_label) function.
-5. **Microservice Instance Usage:** normalized pod usage, for each service via the get_pod_cpu_usage_for_service(app_label) function and get_pod_ram_usage_for_service(app_label) function with help of get_node_capacity() function for normalization.
+   
+3. **Nodes Usage:** Name, IP address, normalized(percentage) CPU and RAM usage for each node, retrieved through the get_node_metrics() function with the help of get_node_capacity() function for normalization.
+   
+5. **Service Discovery:** Name, NodePort, App Label, for each service using the get_services_with_node_ports() function.
+   
+7. **Pods Discovery:** Pod Name Node Name, Pod Status, for each pod of the service via the get_pod_placements_for_service(app_label) function.
+   
+9. **Microservice Instance Usage:** normalized pod usage, for each service via the get_pod_cpu_usage_for_service(app_label) function and get_pod_ram_usage_for_service(app_label) function with help of get_node_capacity() function for normalization.
 
 
 # Replay Memory
@@ -57,9 +67,12 @@ The environment is designed for reinforcement learning with Kubernetes. It inter
 We crafted ReplayBuffer Class - a cyclic buffer of bounded size that holds the transitions observed recently.
 
 1. self.experience - a named tuple representing a single experience in our environment. It essentially contain (state, action, reward, next_state, done).
-2. self.memory - a double-ended queue with bounded size.
-3. add(state, action, reward, next_state, done) - a function that append experience tuple to memory.
-4. sample() - a function for selecting a random batch of experiences for training.
+   
+3. self.memory - a double-ended queue with bounded size.
+   
+5. add(state, action, reward, next_state, done) - a function that append experience tuple to memory.
+   
+7. sample() - a function for selecting a random batch of experiences for training.
 
 
 # Q-network
